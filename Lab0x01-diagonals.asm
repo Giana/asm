@@ -1,29 +1,4 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; main area
-
-section .text
-    global _start
-_start:
-
-    mov dword [length], 0    ; initialize length to 0
-    jmp _readEach            ; move on to reading each char of input
-    
-_readEach:
-	
-    read currChar            ; read current char
-    test eax, eax            ; check if nothing read in, to end loop
-    jnz _loop1               ; if not 0, move on to next loop
-    
-_loop1:
-
-	mov dword [count], 0     ; initialize count to 0
-	jmp _loop2               ; move on to next loop
-	
-_loop2:
-
-    
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_read area
 
 %macro read 1         ; defines reading global var
@@ -44,6 +19,38 @@ _loop2:
 	mov EAX, 4        ; code for sys_write
 	int 0x80          ; stop, do a sys_write
 %endmacro
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; main area
+
+section .text
+    global _start
+_start:
+
+    mov dword [length], 0    ; initialize length to 0
+    jmp _readEach            ; move on to reading each char of input
+    
+_readEach:
+	
+    read currChar          ; read current char
+    test eax, eax          ; check if nothing read in, to end loop
+    jnz _loop1             ; if not 0, move on to next loop
+    
+_loop1:
+
+	mov dword [count], 0   ; initialize count to 0
+	jmp _loop2             ; move on to next loop
+	
+_loop2:
+
+    mov eax, [count]
+    cmp eax, [length]      ; compare count and length
+    jl _loop3              ; if count < length, move on to next loop
+    
+_loop3:
+	
+    write space            ; put a space
+    inc dword [count]      ; increase the count and move on
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; data area

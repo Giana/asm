@@ -5,6 +5,23 @@ section .text
     global _start
 _start:
 
+    mov dword [length], 0    ; initialize length to 0
+    jmp _readEach            ; move on to reading each char of input
+    
+_readEach:
+	
+    read currChar            ; read current char
+    test eax, eax            ; check if nothing read in, to end loop
+    jnz _loop1               ; if not 0, move on to next loop
+    
+_loop1:
+
+	mov dword [count], 0     ; initialize count to 0
+	jmp _loop2               ; move on to next loop
+	
+_loop2:
+
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_read area
@@ -41,5 +58,6 @@ section .data
 
 section .bss
 
-	; Not sure what to reserve yet! But here are my two new things.
-	
+    length resd 1           ; 4 bytes resvd for lngth of line
+    currChar resd 1         ; 4 bytes resvd for current char
+    count resd 1            ; 4 bytes resvd for counter

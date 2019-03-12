@@ -2,23 +2,40 @@
 ; sys_read area
 
 %macro read 1         ; defines reading global var
-	mov EDX, 1000     ; # of bytes to be read
-	mov ECX, ???      ; address where read input is stored
+	mov EDX, 1        ; # of bytes to be read
+	mov ECX, %1       ; address where read input is stored
 	mov EBX, 0        ; standard input
 	mov EAX, 3        ; code for sys_read
-	int 0x80          ; stop, do a sys_read
+	int 80h           ; stop, do a sys_read
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_write area
 
 %macro write 1        ; defines writing global var
-	mov EDX, ???      ; length of what's to be printed
-	mov ECX, ???      ; address of what's to be printed
+	mov EDX, 1        ; length of what's to be printed
+	mov ECX, %1       ; address of what's to be printed
 	mov EBX, 1        ; standard output
 	mov EAX, 4        ; code for sys_write
-	int 0x80          ; stop, do a sys_write
+	int 80h           ; stop, do a sys_write
 %endmacro
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; data area
+
+section .data
+
+    newline: db 0xA          ; newline character
+    space: db 0x20           ; space character
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; reservation area
+
+section .bss
+
+    length: resd 1           ; 4 bytes resvd for length of line
+    currChar: resd 1         ; 4 bytes resvd for current char
+    count: resd 1            ; 4 bytes resvd for counter
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; main area
@@ -47,7 +64,7 @@ _loop2:
     cmp eax, [length]      ; compare count and length
     jl _loop3              ; if count < length, move on to next loop
     
-    cmp byte [currChar], 0x0A    ; compare current char to newline
+    cmp byte [currChar], 0Ah     ; compare current char to newline
     jnz _loop4                   ; move to next loop
     mov dword [length], 0        ; it's a newline, set length to 0
     jmp _loop5
@@ -64,23 +81,13 @@ _loop4:
 _loop5:
 
     write currChar              ; print current char
-    cmp byte [currChar], 0x0A   ; compare current char to newline
+    cmp byte [currChar], 0Ah    ; compare current char to newline
     jz _readEach                ; restart the cycle
     write newline               ; place newline after current char
-
+    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; data area
+; quit area
 
-section .data
-
-    newline db 0x0A         ; newline character
-    space db 0x20           ; space character
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; reservation area
-
-section .bss
-
-    length resd 1           ; 4 bytes resvd for length of line
-    currChar resd 1         ; 4 bytes resvd for current char
-    count resd 1            ; 4 bytes resvd for counter
+	mov eax, 0x1
+	xor ebx, ebx
+	int 80h

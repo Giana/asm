@@ -47,10 +47,26 @@ _loop2:
     cmp eax, [length]      ; compare count and length
     jl _loop3              ; if count < length, move on to next loop
     
+    cmp byte [currChar], 0x0A    ; compare current char to newline
+    jnz _loop4                   ; move to next loop
+    mov dword [length], 0        ; it's a newline, set length to 0
+    jmp _loop5
+    
 _loop3:
 	
     write space            ; put a space
-    inc dword [count]      ; increase the count and move on
+    inc dword [count]      ; inc the count and move on
+    
+_loop4:
+
+    inc dword [length]     ; inc the length and move on
+
+_loop5:
+
+    write currChar              ; print current char
+    cmp byte [currChar], 0x0A   ; compare current char to newline
+    jz _readEach                ; restart the cycle
+    write newline               ; place newline after current char
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; data area
@@ -65,6 +81,6 @@ section .data
 
 section .bss
 
-    length resd 1           ; 4 bytes resvd for lngth of line
+    length resd 1           ; 4 bytes resvd for length of line
     currChar resd 1         ; 4 bytes resvd for current char
     count resd 1            ; 4 bytes resvd for counter

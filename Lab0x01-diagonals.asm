@@ -50,30 +50,30 @@ _start:
 _loop1:
 
     mov dword [count], 0   ; initialize count to 0
-    jmp _loop3             ; move on to next loop
+    jmp spaces             ; move on to next loop
 
 _loop2:
 	
     write space            ; put a space
     inc dword [count]      ; inc the count and move on
     
-_loop3:
+spaces:
 
     mov eax, [count]
     cmp eax, [length]      ; compare count and length
     jl _loop2              ; if count < length, move on to next loop
     
     cmp byte [currChar], 0x0A    ; compare current char to newline
-    jnz _loop4                   ; move to next loop
+    jnz nl1                      ; move to next loop
     
     mov dword [length], 0        ; it's a newline, set length to 0
-    jmp _loop5    
+    jmp nl2    
     
-_loop4:
+nl1:
 
     inc dword [length]          ; inc the length and move on
     
-_loop5:
+nl2:
 
     write currChar              ; print current char
     cmp byte [currChar], 0x0A   ; compare current char to newline

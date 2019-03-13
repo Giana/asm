@@ -40,7 +40,32 @@ section .bss
 
     currChar: resd 1         ; 4 bytes resvd for current char
     count: resd 1            ; 4 bytes resvd for counter
-    ;; laying some groundword
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; main area
+
+section .text
+	global _start
+_start:
+
+_loop1:
+
+    movzx eax, byte [currChar]	; place char and fill front with 0s
+    mov ah, al			        ; copy currChar left
+    shr ah, 4			        ; shift it right a half byte (aka
+    							; shift "out" the low "nibble", so
+    							; I have read)
+    and eax, 0f0fh		        ; mask, leave what we want
+    cmp al, 0xA			        ; compare al to newline
+    jb _loop2                   ; continue on to next loop			
+    add al, 07h		            ; 41h - 30h - 0Ah
+
+_readEach:
+	
+    read currChar          ; read current char
+    test eax, eax          ; check if nothing read in, to end loop
+    jnz _loop1           ; if not 0, move on to next loop
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; exit area
 

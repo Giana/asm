@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_read area
 
-%macro read 1         ; defines reading global var
+%macro read 1             ; defines reading global var
 	mov EDX, 1        ; # of bytes to be read
 	mov ECX, %1       ; address where read input is stored
 	mov EBX, 0        ; standard input
@@ -12,7 +12,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_write area
 
-%macro write 1        ; defines writing global var
+%macro write 1            ; defines writing global var
 	mov EDX, 1        ; length of what's to be printed
 	mov ECX, %1       ; address of what's to be printed
 	mov EBX, 1        ; standard output
@@ -48,23 +48,43 @@ section .text
 	global _start
 _start:
 
-_loop1:
+_lncloop:
 
-    movzx eax, byte [currChar]	; place char and fill front with 0s
-    mov ah, al			        ; copy currChar left
-    shr ah, 4			        ; shift it right a half byte (aka
-    							; shift "out" the low "nibble", so
-    							; I have read)
-    and eax, 0f0fh		        ; mask, leave what we want
-    cmp al, 0xA			        ; compare al to newline
-    jb _loop2                   ; continue on to next loop			
-    add al, 07h		            ; 41h - 30h - 0Ah
+    movzx eax, byte [currChar]	; place char (in al) and fill front
+                                ; with 0s
+    mov ah, al			; copy currChar left
+    shr ah, 4			; shift it right a half byte (aka
+    				; shift "out" the low "nibble")
+    and eax, 0f0fh		; high nibbles of ah and al zeroed
+    cmp al, 0xA			; compare al to newline
+    jb _hncloop                 ; continue to next loop if >=		
+    add al, 07h		        ; 41h - 30h - 0Ah
+    
+_hncloop:
+
+    add al, 30h			; adding 0, char conversion
+    cmp ah, 0xA
+    jb _loop2
+    add ah, 07h
+    
+_loop2:
+
+    add ah, 30h                 ; adding 0, char conversion
+    mov [currChar], eax
+    write currChar + 1	        ; high nib
+    write currChar		; low nib	
+    write space
+    inc dword [count]
+    cmp dword [count], columns	; compare, count < columns
+    jl _readEach                ; if so, jump
+    write newline
+    mov dword [count], 0
 
 _readEach:
 	
     read currChar          ; read current char
     test eax, eax          ; check if nothing read in, to end loop
-    jnz _loop1           ; if not 0, move on to next loop
+    jnz _lncloop           ; if not 0, move on to next loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; exit area

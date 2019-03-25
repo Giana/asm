@@ -2,22 +2,22 @@
 ; sys_read area
 
 %macro read 1         ; defines reading global var
-	mov EDX, 1        ; # of bytes to be read
-	mov ECX, %1       ; address where read input is stored
-	mov EBX, 0        ; standard input
-	mov EAX, 3        ; code for sys_read
-	int 0x80          ; stop, do a sys_read
+    mov EDX, 1        ; # of bytes to be read
+    mov ECX, %1       ; address where read input is stored
+    mov EBX, 0        ; standard input
+    mov EAX, 3        ; code for sys_read
+    int 0x80          ; stop, do a sys_read
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; sys_write area
 
 %macro write 2        ; defines writing global var
-	mov EDX, %2       ; length of what's to be printed
-	mov ECX, %1       ; address of what's to be printed
-	mov EBX, 1        ; standard output
-	mov EAX, 4        ; code for sys_write
-	int 0x80          ; stop, do a sys_write
+    mov EDX, %2       ; length of what's to be printed
+    mov ECX, %1       ; address of what's to be printed
+    mov EBX, 1        ; standard output
+    mov EAX, 4        ; code for sys_write
+    int 0x80          ; stop, do a sys_write
 %endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,7 +33,7 @@ section .data
     mismMsg2Ln equ $-mismMsg2
     failMsg: db "The program ended with an open '['.", 0x0A
     failMsgLn equ $-failMsg
-	c: db 0
+    c: db 0
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; main area
@@ -42,13 +42,13 @@ section .text
     global _start
 _start:
 
-    mov ebp, esp	        ; save stack pointer
+    mov ebp, esp	    ; save stack pointer
     mov edi, c
 	
 readLoop:
 
     read edi	            ; read char from stdin
-    test eax, eax	        ; nothing read?
+    test eax, eax	    ; nothing read?
     jz end                  ; well, then end the program!
     cmp byte [edi], '{'     ; we are going to compare the char read
     je .push                ; to our possibilities...
@@ -70,8 +70,8 @@ readLoop:
     jl .stackOk
     mov al, byte [edi]
     mov byte [mismMsg2 + 27], al	; correct error message to
-    							    ; display the legit bracket
-    							    ; type
+    	                                ; display the legit bracket
+    					; type
     write mismMsg2, mismMsg2Ln
     jmp end.endif
 
@@ -80,7 +80,7 @@ readLoop:
     pop eax
     cmp al, '('
     jne .bracket
-    dec al	          ; if '(', dec to get ')', adding 2
+    dec al	              ; if '(', dec to get ')', adding 2
 
 .bracket:
 
@@ -90,9 +90,9 @@ readLoop:
     mov [mismMsg + 3], al
     mov al, byte [edi]
     mov [mismMsg + 27], al	  ; correct error message to display
-                              ; the legit bracket type
-	write mismMsg, mismMsgLn
-	jmp end.endif
+                                  ; the legit bracket type
+    write mismMsg, mismMsgLn
+    jmp end.endif
 
 .push:
 	
@@ -107,8 +107,8 @@ end:
     pop eax
     mov byte [failMsg + 32], al	     ; correct error message to
                                      ; display legit bracket type
-	write failMsg, failMsgLn
-	jmp .endif
+    write failMsg, failMsgLn
+    jmp .endif
 
 .ok:
 
@@ -119,6 +119,6 @@ end:
 
 .endif:
 
-	mov eax, 0x1
-	xor ebx, ebx
-	int 0x80
+    mov eax, 0x1
+    xor ebx, ebx
+    int 0x80
